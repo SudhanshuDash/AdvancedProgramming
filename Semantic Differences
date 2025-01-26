@@ -1,0 +1,39 @@
+Python Example:
+def outer():
+ x = 10
+ def inner():
+ nonlocal x
+         x += 1
+ print(x)
+ inner()
+outer()
+
+
+JavaScript Example:
+function outer() {
+    let x = 10;
+    function inner() {
+             x++;
+            console.log(x);
+    }
+           inner();
+   }
+  outer();
+
+C++ Example:
+#include <iostream>
+using namespace std;
+
+        void outer() {
+ int x = 10;
+   auto inner = [&x]() {
+            x++;
+    cout << x << endl;
+    };
+        inner();
+}
+
+int main() {
+         outer();
+    return 0;
+}
