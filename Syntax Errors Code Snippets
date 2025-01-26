@@ -1,0 +1,46 @@
+Python Code Snippet:
+# Python: Calculate the sum of an array
+def calculate_sum(arr):
+    total = o# Error: 'o' is undefined; it should be '0'
+    for num in arr:
+        total += num
+    return total
+
+numbers = [1, 2, 3, 4, 5]
+result = calculate_sum(numbers)
+print("Sumin Python :", result)  # Typo in the output string
+
+
+JavaScript Code Snippet:
+JavaScript: Calculate the sum of an array
+function calculateSum(arr) {
+    let total = o; // Error: 'o' is undefined; it should be '0'
+    for (let num of arr) {
+        total += num;
+    }
+    return total;
+}
+
+let numbers = [1, 2, 3, 4, 5];
+let result = calculate Sum(numbers); // Error: Function name contains a space
+console.log("Sum in JavaScript:", result);
+
+
+
+C++ Code Snippet:
+#include <iostream>
+using namespace std;
+int calculateSum(int arr[], int size) {
+    int total = o;  // Error: 'o' is undefined; it should be '0'
+    for (int i = o; i < size; i++) {  // Error: 'o' is undefined; it should be '0'
+        total += arr[i];
+    }
+    return total;
+}
+
+int main() {
+    int numbers[] = {1, 2, 3, 4, 5};
+    int size = sizeof(numbers) / sizeof(numbers[o]); // Error: 'o' is undefined; it should be '0'
+    int result = calculateSum(numbers, size);
+    cout << "Sum in C++" " << result << endl; // Error: missing << operator
+    return o;  // Error: 'o' is undefined; it should be '0'
