@@ -1,0 +1,26 @@
+Rust Example:
+fn main() {
+   let vec = vec![1, 2, 3];
+    println!("{:?}", vec); // Ownership ensures memory safety.
+}
+
+Java Example:
+import java.util.ArrayList;
+public class MemoryManagement {
+public static void main(String[] args) {
+        ArrayList<Integer> list = new ArrayList<>();
+ list.add(1);
+  list.add(2);
+        System.out.println(list); // Garbage collection handles memory automatically.
+    }
+}
+
+C++ Example:
+#include <iostream>
+using namespace std;
+        int main() {
+int* ptr = new int(10);
+ cout << *ptr << endl;
+delete ptr; // Manual deallocation prevents memory leaks
+ return 0;
+}
