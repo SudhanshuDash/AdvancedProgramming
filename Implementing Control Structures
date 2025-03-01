@@ -1,0 +1,73 @@
+Python Implementation:
+
+import random
+
+days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+employees = {"Alice": [], "Bob": [], "Charlie": []}
+shifts = {day: {"morning": [], "afternoon": [], "evening": []} for day in days}
+
+def assign_shifts():
+    for day in days:
+        for employee in employees:
+            if len(employees[employee]) < 5:
+                shift = random.choice(["morning", "afternoon", "evening"])
+                if len(shifts[day][shift]) < 2:
+                    shifts[day][shift].append(employee)
+                    employees[employee].append(day)
+
+assign_shifts()
+
+----------------------------------------------------------------------------------------------------------------------------------
+Java Implementation:
+
+import java.util.*;
+
+public class ShiftScheduler {
+    static String[] shifts = {"morning", "afternoon", "evening"};
+    static String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
+    static Map<String, Map<String, List<String>>> schedule = new HashMap<>();
+
+    public static void main(String[] args) {
+        for (String day : days) {
+            schedule.put(day, new HashMap<>());
+            for (String shift : shifts) {
+                schedule.get(day).put(shift, new ArrayList<>());
+            }
+        }
+        assignShifts();
+        System.out.println(schedule);
+    }
+
+    static void assignShifts() {
+        String[] employees = {"Alice", "Bob", "Charlie"};
+        Random rand = new Random();
+        for (String day : days) {
+            for (String employee : employees) {
+                String shift = shifts[rand.nextInt(shifts.length)];
+                schedule.get(day).get(shift).add(employee);
+            }
+        }
+    }
+}
+--------------------------------------------------------------------------------------------------------------------------------------------
+Bonus - Python:
+import random
+
+days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+employees = {
+    "Alice": ["morning", "evening", "afternoon"],
+    "Bob": ["afternoon", "morning", "evening"],
+    "Charlie": ["evening", "morning", "afternoon"]
+}
+shifts = {day: {"morning": [], "afternoon": [], "evening": []} for day in days}
+
+def assign_shifts_with_preferences():
+    for day in days:
+        for employee, preferences in employees.items():
+            for preference in preferences:
+                if len(shifts[day][preference]) < 2:
+                    shifts[day][preference].append(employee)
+                    break
+
+assign_shifts_with_preferences()
+print(shifts)
