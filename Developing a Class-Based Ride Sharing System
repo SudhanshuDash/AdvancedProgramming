@@ -1,0 +1,273 @@
+C++ Implementation:
+
+#include <iostream>
+#include <vector>
+#include <memory>
+#include <iomanip>
+
+using namespace std;
+
+// --------------------- Base Ride Class ---------------------
+class Ride {
+protected:
+    int rideID;
+    string pickupLocation;
+    string dropoffLocation;
+    double distance;
+
+public:
+    Ride(int id, const string& pickup, const string& dropoff, double dist)
+        : rideID(id), pickupLocation(pickup), dropoffLocation(dropoff), distance(dist) {}
+
+    virtual double fare() const = 0; // Abstract method for dynamic fare calculation
+
+    virtual void rideDetails() const {
+        cout << fixed << setprecision(2);
+        cout << "Ride ID: " << rideID
+             << "\nPickup: " << pickupLocation
+             << "\nDropoff: " << dropoffLocation
+             << "\nDistance: " << distance << " miles\n";
+    }
+
+    virtual ~Ride() {}
+};
+
+// --------------------- Derived Classes ---------------------
+class StandardRide : public Ride {
+public:
+    StandardRide(int id, const string& pickup, const string& dropoff, double dist)
+        : Ride(id, pickup, dropoff, dist) {}
+
+    double fare() const override {
+        return distance * 1.5;
+    }
+
+    void rideDetails() const override {
+        Ride::rideDetails();
+        cout << "Ride Type: Standard\nFare: $" << fare() << "\n\n";
+    }
+};
+
+class PremiumRide : public Ride {
+public:
+    PremiumRide(int id, const string& pickup, const string& dropoff, double dist)
+        : Ride(id, pickup, dropoff, dist) {}
+
+    double fare() const override {
+        return distance * 2.5;
+    }
+
+    void rideDetails() const override {
+        Ride::rideDetails();
+        cout << "Ride Type: Premium\nFare: $" << fare() << "\n\n";
+    }
+};
+
+// --------------------- Driver Class ---------------------
+class Driver {
+private:
+    int driverID;
+    string name;
+    double rating;
+    vector<shared_ptr<Ride>> assignedRides;
+
+public:
+    Driver(int id, const string& driverName, double driverRating)
+        : driverID(id), name(driverName), rating(driverRating) {}
+
+    void addRide(const shared_ptr<Ride>& ride) {
+        assignedRides.push_back(ride);
+    }
+
+    void getDriverInfo() const {
+        cout << "=== Driver Info ===\n"
+             << "ID: " << driverID << "\nName: " << name
+             << "\nRating: " << rating << "\nTotal Rides: " << assignedRides.size() << "\n\n";
+
+        for (const auto& ride : assignedRides) {
+            ride->rideDetails();
+        }
+    }
+};
+
+// --------------------- Rider Class ---------------------
+class Rider {
+private:
+    int riderID;
+    string name;
+    vector<shared_ptr<Ride>> requestedRides;
+
+public:
+    Rider(int id, const string& riderName)
+        : riderID(id), name(riderName) {}
+
+    void requestRide(const shared_ptr<Ride>& ride) {
+        requestedRides.push_back(ride);
+    }
+
+    void viewRides() const {
+        cout << "=== Rider Info ===\n"
+             << "ID: " << riderID << "\nName: " << name
+             << "\nTotal Rides Requested: " << requestedRides.size() << "\n\n";
+
+        for (const auto& ride : requestedRides) {
+            ride->rideDetails();
+        }
+    }
+};
+
+// --------------------- Main Function ---------------------
+int main() {
+    // Creating rides using polymorphism
+    shared_ptr<Ride> standardRide = make_shared<StandardRide>(101, "Downtown", "Airport", 12.5);
+    shared_ptr<Ride> premiumRide = make_shared<PremiumRide>(102, "City Center", "Uptown", 8.0);
+
+    // Creating driver and assigning rides
+    Driver driver1(1, "Alice Johnson", 4.9);
+    driver1.addRide(standardRide);
+    driver1.addRide(premiumRide);
+
+    // Creating rider and requesting rides
+    Rider rider1(1001, "Bob Smith");
+    rider1.requestRide(standardRide);
+    rider1.requestRide(premiumRide);
+
+    // Display driver and rider details
+    driver1.getDriverInfo();
+    rider1.viewRides();
+
+    return 0;
+}
+
+
+Smalltalk Implementation:
+
+"--- Ride Base Class ---"
+Object subclass: Ride [
+    | rideID pickupLocation dropoffLocation distance |
+
+    Ride class >> newRide: id pickup: pickup dropoff: dropoff distance: dist [
+        ^ self new initialize: id pickup: pickup dropoff: dropoff distance: dist.
+    ]
+
+    initialize: id pickup: pickup dropoff: dropoff distance: dist [
+        rideID := id.
+        pickupLocation := pickup.
+        dropoffLocation := dropoff.
+        distance := dist.
+        ^ self.
+    ]
+
+    fare [
+        self subclassResponsibility.
+    ]
+    
+    rideDetails [
+        Transcript show: 'Ride ID: ', rideID printString; cr.
+        Transcript show: 'Pickup: ', pickupLocation; cr.
+        Transcript show: 'Dropoff: ', dropoffLocation; cr.
+        Transcript show: 'Distance: ', distance printString, ' miles'; cr.
+    ]
+]
+
+"--- Standard Ride Class ---"
+Ride subclass: StandardRide [
+    fare [
+        ^ distance * 1.5.
+    ]
+
+    rideDetails [
+        super rideDetails.
+        Transcript show: 'Ride Type: Standard'; cr.
+        Transcript show: 'Fare: $', (self fare) printString; cr; cr.
+    ]
+]
+
+"--- Premium Ride Class ---"
+Ride subclass: PremiumRide [
+    fare [
+        ^ distance * 2.5.
+    ]
+
+    rideDetails [
+        super rideDetails.
+        Transcript show: 'Ride Type: Premium'; cr.
+        Transcript show: 'Fare: $', (self fare) printString; cr; cr.
+    ]
+]
+
+"--- Driver Class ---"
+Object subclass: Driver [
+    | driverID name rating assignedRides |
+
+    Driver class >> newDriver: id name: driverName rating: driverRating [
+        ^ self new initialize: id name: driverName rating: driverRating.
+    ]
+
+    initialize: id name: driverName rating: driverRating [
+        driverID := id.
+        name := driverName.
+        rating := driverRating.
+        assignedRides := OrderedCollection new.
+        ^ self.
+    ]
+
+    addRide: ride [
+        assignedRides add: ride.
+    ]
+
+    getDriverInfo [
+        Transcript show: '=== Driver Info ==='; cr.
+        Transcript show: 'Driver ID: ', driverID printString; cr.
+        Transcript show: 'Name: ', name; cr.
+        Transcript show: 'Rating: ', rating printString; cr.
+        Transcript show: 'Total Rides: ', assignedRides size printString; cr; cr.
+        assignedRides do: [:ride | ride rideDetails].
+    ]
+]
+
+"--- Rider Class ---"
+Object subclass: Rider [
+    | riderID name requestedRides |
+
+    Rider class >> newRider: id name: riderName [
+        ^ self new initialize: id name: riderName.
+    ]
+
+    initialize: id name: riderName [
+        riderID := id.
+        name := riderName.
+        requestedRides := OrderedCollection new.
+        ^ self.
+    ]
+
+    requestRide: ride [
+        requestedRides add: ride.
+    ]
+
+    viewRides [
+        Transcript show: '=== Rider Info ==='; cr.
+        Transcript show: 'Rider ID: ', riderID printString; cr.
+        Transcript show: 'Name: ', name; cr.
+        Transcript show: 'Total Rides Requested: ', requestedRides size printString; cr; cr.
+        requestedRides do: [:ride | ride rideDetails].
+    ]
+]
+
+"--- Test Script ---"
+| standardRide premiumRide driver rider |
+
+standardRide := StandardRide newRide: 101 pickup: 'Downtown' dropoff: 'Airport' distance: 12.5.
+premiumRide := PremiumRide newRide: 102 pickup: 'City Center' dropoff: 'Uptown' distance: 8.0.
+
+driver := Driver newDriver: 1 name: 'Alice Johnson' rating: 4.9.
+driver addRide: standardRide.
+driver addRide: premiumRide.
+
+rider := Rider newRider: 1001 name: 'Bob Smith'.
+rider requestRide: standardRide.
+rider requestRide: premiumRide.
+
+driver getDriverInfo.
+Transcript cr.
+rider viewRides.
