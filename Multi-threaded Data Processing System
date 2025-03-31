@@ -1,0 +1,162 @@
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.concurrent.*;
+
+class Task {
+    private final int taskId;
+
+    public Task(int taskId) {
+        this.taskId = taskId;
+    }
+
+    public int getTaskId() {
+        return taskId;
+    }
+
+    public void processTask() {
+        try {
+            // Simulate processing time
+            Thread.sleep(1000);
+            System.out.println("Task " + taskId + " processed by " + Thread.currentThread().getName());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.out.println("Task " + taskId + " was interrupted.");
+        }
+    }
+}
+
+class Worker implements Runnable {
+    private final BlockingQueue<Task> taskQueue;
+    private final FileWriter fileWriter;
+
+    public Worker(BlockingQueue<Task> taskQueue, FileWriter fileWriter) {
+        this.taskQueue = taskQueue;
+        this.fileWriter = fileWriter;
+    }
+
+    @Override
+    public void run() {
+        try {
+            while (true) {
+                Task task = taskQueue.poll(2, TimeUnit.SECONDS);
+                if (task == null) break; // Exit when no more tasks
+
+                task.processTask();
+
+                synchronized (fileWriter) { // Prevent multiple threads from writing simultaneously
+                    fileWriter.write("Task " + task.getTaskId() + " completed by " + Thread.currentThread().getName() + "\n");
+                }
+            }
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}
+
+public class DataProcessingSystem {
+    public static void main(String[] args) {
+        int numWorkers = 4;
+        BlockingQueue<Task> taskQueue = new LinkedBlockingQueue<>();
+
+        // Adding tasks to the queue
+        for (int i = 1; i <= 10; i++) {
+            taskQueue.add(new Task(i));
+        }
+
+        ExecutorService executor = Executors.newFixedThreadPool(numWorkers);
+
+        try (FileWriter fileWriter = new FileWriter("output.txt", true)) {
+            for (int i = 0; i < numWorkers; i++) {
+                executor.execute(new Worker(taskQueue, fileWriter));
+            }
+        } catch (IOException e) {
+            System.out.println("File Error: " + e.getMessage());
+        }
+
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
+
+        System.out.println("All tasks completed.");
+    }
+}
+
+---------------
+
+Go Implementation:
+
+package main
+
+import (
+	"fmt"
+	"os"
+	"sync"
+	"time"
+)
+
+// Task represents a unit of work
+type Task struct {
+	id int
+}
+
+// Process simulates processing a task
+func (t Task) Process() {
+	time.Sleep(time.Second)
+	fmt.Printf("Task %d processed by worker %d\n", t.id, GetGoroutineID())
+}
+
+// GetGoroutineID (Mock function to display worker ID)
+func GetGoroutineID() int {
+	return int(time.Now().UnixNano() % 1000) // Simulating worker ID
+}
+
+// Worker function
+func worker(id int, tasks <-chan Task, wg *sync.WaitGroup, file *os.File, mutex *sync.Mutex) {
+	defer wg.Done()
+	for task := range tasks {
+		task.Process()
+		mutex.Lock()
+		_, err := file.WriteString(fmt.Sprintf("Task %d completed by worker %d\n", task.id, id))
+		mutex.Unlock()
+		if err != nil {
+			fmt.Println("File Write Error:", err)
+		}
+	}
+}
+
+func main() {
+	numWorkers := 4
+	taskQueue := make(chan Task, 10)
+	var wg sync.WaitGroup
+	var mutex sync.Mutex
+
+	// Open file for writing
+	file, err := os.OpenFile("output_go.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println("File Error:", err)
+		return
+	}
+	defer file.Close()
+
+	// Launch workers
+	for i := 1; i <= numWorkers; i++ {
+		wg.Add(1)
+		go worker(i, taskQueue, &wg, file, &mutex)
+	}
+
+	// Add tasks
+	for i := 1; i <= 10; i++ {
+		taskQueue <- Task{id: i}
+	}
+	close(taskQueue) // Close channel after sending all tasks
+
+	// Wait for all workers to finish
+	wg.Wait()
+
+	fmt.Println("All tasks completed.")
+}
