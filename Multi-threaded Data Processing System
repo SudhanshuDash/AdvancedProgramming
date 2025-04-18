@@ -24,7 +24,6 @@ class Task {
         }
     }
 }
-
 class Worker implements Runnable {
     private final BlockingQueue<Task> taskQueue;
     private final FileWriter fileWriter;
