@@ -1,0 +1,90 @@
+% FamilyTree.pl
+% Simple Family Tree Program in Prolog
+
+% --------------------
+% Facts: Gender
+% --------------------
+male(john).
+male(mike).
+male(david).
+male(robert).
+male(paul).
+
+female(mary).
+female(susan).
+female(anna).
+female(emily).
+female(lisa).
+
+% --------------------
+% Facts: Parent-Child Relationships
+% --------------------
+parent(john, mike).
+parent(john, susan).
+parent(mary, mike).
+parent(mary, susan).
+
+parent(mike, david).
+parent(mike, anna).
+parent(susan, emily).
+parent(susan, paul).
+
+parent(david, robert).
+parent(anna, lisa).
+
+% --------------------
+% Rules: Derived Relationships
+% --------------------
+
+% Grandparent Rule
+grandparent(X, Y) :- 
+    parent(X, Z), 
+    parent(Z, Y).
+
+% Sibling Rule
+sibling(X, Y) :- 
+    parent(P, X), 
+    parent(P, Y), 
+    X \= Y.
+
+% Cousin Rule
+cousin(X, Y) :- 
+    parent(P1, X), 
+    parent(P2, Y), 
+    sibling(P1, P2).
+
+% Descendant Rule (Recursive)
+descendant(X, Y) :- 
+    parent(Y, X).
+descendant(X, Y) :- 
+    parent(Z, X), 
+    descendant(Z, Y).
+
+% Child Query: Finding children
+child(X, Y) :- 
+    parent(Y, X).
+
+% Ancestor Query (Recursive)
+ancestor(X, Y) :- 
+    parent(X, Y).
+ancestor(X, Y) :- 
+    parent(X, Z), 
+    ancestor(Z, Y).
+
+% --------------------
+% Initialization Message
+% --------------------
+
+:- initialization(main).
+
+main :-
+    write('Family Tree Program Loaded Successfully!'), nl,
+    write('You can now ask queries like:'), nl,
+    write('  - grandparent(X, Y).'), nl,
+    write('  - sibling(X, Y).'), nl,
+    write('  - cousin(X, Y).'), nl,
+    write('  - descendant(X, Y).'), nl,
+    write('  - ancestor(X, Y).'), nl,
+    write('  - child(X, Y).'), nl,
+    write(''), nl,
+    halt.  % End the program after showing instructions
